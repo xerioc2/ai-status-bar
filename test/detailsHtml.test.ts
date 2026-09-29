@@ -14,7 +14,7 @@ suite('History panel HTML', () => {
   test('empty provider selection has a useful message', () => {
     assert.match(detailsHtml([], []), /No providers enabled/);
   });
-  test('dashboard adds a nonce-restricted script; sidebar remains script-free', () => {
+  test('interactive views add nonce-restricted scripts; static rendering has no scripts', () => {
     const html = detailsHtml([], [], { header: '<h1>AI Status</h1>', nonce: 'test-nonce', scriptUri: 'https://example.com/status-page.js' });
     assert.ok(html.includes("script-src 'nonce-test-nonce'"));
     assert.ok(html.includes('<script nonce="test-nonce"'));

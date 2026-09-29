@@ -1,11 +1,11 @@
 import * as vscode from 'vscode';
 import { readSettings, saveProviders } from '../config/settings';
-import { moveProvider } from '../config/providerSelection';
+import { moveProvider, providerOrder } from '../config/providerSelection';
 import { providerDefinitions } from '../providers/registry';
 
 export async function selectProviders(): Promise<void> {
   const enabled = readSettings().enabledProviders;
-  const ids = [...enabled, ...providerDefinitions.map(p => p.id).filter(id => !enabled.includes(id))];
+  const ids = providerOrder(enabled, providerDefinitions.map(p => p.id));
   const selected = await vscode.window.showQuickPick(ids.map(id => ({
     id, label: providerDefinitions.find(p => p.id === id)!.displayName, picked: enabled.includes(id)
   })), { title: 'AI Status: Choose Providers', canPickMany: true,

@@ -2,7 +2,9 @@
 
 Reported AI service incidents in one VS Code status bar item. Hover for provider reports, affected components, incident severity, response stage, latest update, and last checked time. Click to open **AI Status** as a collapsible section in the Explorer sidebar, alongside Outline and Timeline. It starts collapsed; collapse its header when you want it tucked away, or right-click the header and uncheck AI Status to hide it. Each provider has a 30-day incident-history graph. Select its name to open the official status page, hover or keyboard-focus a daily bar for incidents, and expand **Report details** for the current report. The view updates automatically and includes a Refresh button.
 
-History bars show the worst published incident impact overlapping each UTC day. Green means no incident in the returned feed for that day; striped means history is unavailable or impact is unknown. Dates before the oldest returned incident remain unknown, and empty feeds never produce invented green history. Feeds are bounded and may omit incidents; these graphs are not measured uptime and do not reproduce official uptime percentages. History is provider-wide, not per product, and scheduled-maintenance history is not included. Today's bar covers only the elapsed part of the day.
+History bars show the worst published incident impact overlapping each UTC day. Green means no incident in the returned feed for that day; striped means history is unavailable or impact is unknown. Dates before the oldest returned incident remain unknown, and empty feeds never produce invented green history. Feeds are bounded and may omit incidents; these graphs are not measured uptime and do not reproduce official uptime percentages. History is provider-wide, not per product, and scheduled-maintenance history is not included. The last bar covers only the portion of that date included in the fetched report.
+
+Claude, GitHub, and Cursor history is cached for 30 minutes independently of current status; failed optional history requests preserve current status and any cached graph. **Report details** shows when history was fetched. OpenAI and Perplexity require the incident feed for current status, so those feeds stay fresh on every poll. Refreshes preserve expanded report sections, scroll position, keyboard focus, and dashboard edits.
 
 **This extension reports only what providers publish.** “No reported incidents” is not a guarantee of availability. Reports can lag real problems and may cover products beyond the AI tool you use. Unknown means the status API could not be read or returned an unexpected value; it does not mean the provider is down.
 
@@ -37,6 +39,8 @@ Open **AI Status: Open Dashboard** from the Command Palette, or click **Open Das
 
 Use the **Choose Providers** button in the AI Status section header to check which providers appear. Use **Order Providers** to move them with the row's up/down arrows, then press Enter to save (Escape cancels). The sidebar and status-bar tooltip immediately follow that order. Choices are saved in user settings unless the workspace already overrides the provider list, in which case that override is updated.
 
+In multi-root workspaces, AI Status consistently uses the first workspace folder's settings. If that folder has a provider override, saves update that same folder; other folders are left unchanged. Otherwise, the workspace override or user setting is used.
+
 | Setting | Default | Description |
 | --- | --- | --- |
 | `aiStatus.enabledProviders` | All verified providers | IDs in display order: `anthropic`, `openai`, `github`, `cursor`, `perplexity`. Set `[]` to disable monitoring. Unknown and duplicate IDs are ignored. |
@@ -49,7 +53,7 @@ Use the **Choose Providers** button in the AI Status section header to check whi
 }
 ```
 
-Settings apply without reloading. Provider selection updates immediately; checks respect a one-minute cooldown even after reconfiguration. Newly selected providers may wait until the next polling interval if a check just ran. Disabling the extension aborts requests and clears timers and listeners.
+Settings apply without reloading. Provider selection updates immediately; checks respect a one-minute cooldown even after reconfiguration. A settings change or manual refresh during cooldown queues a check for the first allowed moment, at most one minute after the last check started. Scheduled checks are timed from the latest check instead of skipped when a timer fires early. Disabling the extension aborts requests and clears timers and listeners.
 
 Commands in the Command Palette:
 

@@ -19,6 +19,7 @@ export interface ServiceStatus {
   checkedAt: string;
   error?: string;
   history?: HistoryDay[];
+  historyCheckedAt?: string;
 }
 
 export interface HistoryDay {

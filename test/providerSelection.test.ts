@@ -1,8 +1,11 @@
 import * as assert from 'assert';
-import { normalizeProviders, moveProvider } from '../src/config/providerSelection';
+import { normalizeProviders, moveProvider, providerOrder } from '../src/config/providerSelection';
 import { createProviders } from '../src/providers/registry';
 
 suite('Provider preferences', () => {
+  test('shared ordering puts enabled providers first and adds each remaining provider once', () => {
+    assert.deepStrictEqual(providerOrder(['c', 'a', 'c', 'invalid'], ['a', 'b', 'c']), ['c', 'a', 'b']);
+  });
   test('preserves chosen order and removes invalid or duplicate IDs', () => {
     assert.deepStrictEqual(normalizeProviders(['cursor', 'missing', 'openai', 'cursor', 3], ['openai', 'cursor']), ['cursor', 'openai']);
     assert.deepStrictEqual(createProviders(['cursor', 'missing', 'openai', 'cursor']).map(p => p.id), ['cursor', 'openai']);

@@ -51,6 +51,7 @@
       "title": "AI Status",
       "properties": {
         "aiStatus.enabledProviders": {
+          "scope": "resource",
           "type": "array",
           "items": {
             "type": "string"
@@ -66,6 +67,7 @@
           "markdownDescription": "Provider IDs to monitor, in display order. Use AI Status: Choose Providers and AI Status: Order Providers to customize. Defaults to all verified providers. An empty array disables monitoring."
         },
         "aiStatus.pollIntervalMinutes": {
+          "scope": "resource",
           "type": "number",
           "default": 3,
           "minimum": 1,

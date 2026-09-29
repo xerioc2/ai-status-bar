@@ -2,8 +2,12 @@ import * as vscode from 'vscode';
 import { providerDefinitions } from '../providers/registry';
 import { normalizeProviders } from './providerSelection';
 
-export function readSettings(): { enabledProviders: string[]; pollIntervalMinutes: number } {
-  const config = vscode.workspace.getConfiguration('aiStatus');
+// The view is workspace-wide. Use the first workspace folder consistently, rather
+// than changing scope when the user switches editors or opens the dashboard.
+export function settingsResource(): vscode.Uri | undefined { return vscode.workspace.workspaceFolders?.[0]?.uri; }
+
+export function readSettings(resource = settingsResource()): { enabledProviders: string[]; pollIntervalMinutes: number } {
+  const config = vscode.workspace.getConfiguration('aiStatus', resource);
   const ids = providerDefinitions.map(provider => provider.id);
   const inspected = config.inspect<unknown>('enabledProviders');
   // Registry additions are enabled automatically unless the user chose an explicit list.
@@ -15,8 +19,8 @@ export function readSettings(): { enabledProviders: string[]; pollIntervalMinute
   };
 }
 
-export async function saveProviders(ids: readonly string[]): Promise<void> {
-  const config = vscode.workspace.getConfiguration('aiStatus');
+export async function saveProviders(ids: readonly string[], resource = settingsResource()): Promise<void> {
+  const config = vscode.workspace.getConfiguration('aiStatus', resource);
   const inspected = config.inspect('enabledProviders');
   // Update the effective override so a workspace setting cannot silently mask the user's choice.
   const target = inspected?.workspaceFolderValue !== undefined ? vscode.ConfigurationTarget.WorkspaceFolder

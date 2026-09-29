@@ -13,7 +13,6 @@ suite('Extension host', () => {
     assert.ok(commands.includes('aiStatus.showDetails'));
     assert.ok(commands.includes('aiStatus.selectProviders'));
     assert.ok(commands.includes('aiStatus.orderProviders'));
-    assert.ok(commands.includes('aiStatus.openStatusPage'));
     assert.ok(extension.packageJSON.contributes.views.explorer.some((view: { id: string; visibility: string }) => view.id === 'aiStatus.explorer' && view.visibility === 'collapsed'));
     await vscode.commands.executeCommand('aiStatus.showDetails');
     await vscode.commands.executeCommand('aiStatus.refresh');

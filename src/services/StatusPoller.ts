@@ -2,9 +2,15 @@ import { ServiceStatus } from '../core/types';
 import { StatusProvider } from '../providers/StatusProvider';
 
 export const minimumPollMs = 60_000;
+export interface PollScheduler {
+  set(callback: () => void, delay: number): ReturnType<typeof setTimeout>;
+  clear(timer: ReturnType<typeof setTimeout> | undefined): void;
+}
+const defaultScheduler: PollScheduler = { set: (callback, delay) => setTimeout(callback, delay), clear: timer => clearTimeout(timer) };
 
 export class StatusPoller {
-  private timer: ReturnType<typeof setInterval> | undefined;
+  private timer: ReturnType<typeof setTimeout> | undefined;
+  private intervalMs = 3 * minimumPollMs;
   private readonly controllers = new Set<AbortController>();
   private readonly listeners = new Set<(statuses: readonly ServiceStatus[]) => void>();
   private providers: readonly StatusProvider[] = [];
@@ -14,7 +20,7 @@ export class StatusPoller {
   private disposed = false;
   statuses: readonly ServiceStatus[] = [];
 
-  constructor(private readonly timeoutMs = 10_000, private readonly now = Date.now) {}
+  constructor(private readonly timeoutMs = 10_000, private readonly now = Date.now, private readonly scheduler: PollScheduler = defaultScheduler) {}
 
   onUpdate(listener: (statuses: readonly ServiceStatus[]) => void): { dispose(): void } {
     this.listeners.add(listener);
@@ -31,20 +37,33 @@ export class StatusPoller {
       ?? this.unknown(provider, 'Waiting for first check', ''));
     this.emit();
     const minutes = Number.isFinite(intervalMinutes) ? Math.max(1, intervalMinutes) : 3;
-    this.timer = setInterval(() => { void this.refresh(); }, Math.min(minutes * minimumPollMs, 2_147_483_647));
+    this.intervalMs = Math.min(minutes * minimumPollMs, 2_147_483_647);
     void this.refresh();
   }
 
   refresh(): Promise<void> {
-    if (this.disposed) { return Promise.resolve(); }
+    if (this.disposed || !this.providers.length) { return Promise.resolve(); }
     if (this.running) { return this.running; }
-    if (this.now() - this.lastStarted < minimumPollMs) { return Promise.resolve(); }
+    const remaining = this.lastStarted + minimumPollMs - this.now();
+    if (remaining > 0) {
+      this.schedule(remaining);
+      return Promise.resolve();
+    }
+    this.scheduler.clear(this.timer);
     this.lastStarted = this.now();
     const generation = this.generation;
     this.running = this.poll(generation).finally(() => {
-      if (generation === this.generation) { this.running = undefined; }
+      if (generation === this.generation && !this.disposed) {
+        this.running = undefined;
+        this.schedule(Math.max(0, this.lastStarted + this.intervalMs - this.now()));
+      }
     });
     return this.running;
+  }
+
+  private schedule(delay: number): void {
+    this.scheduler.clear(this.timer);
+    this.timer = this.scheduler.set(() => { void this.refresh(); }, delay);
   }
 
   private async poll(generation: number): Promise<void> {
@@ -79,7 +98,7 @@ export class StatusPoller {
   }
   private emit(): void { for (const listener of this.listeners) { listener(this.statuses); } }
   private cancel(): void {
-    clearInterval(this.timer);
+    this.scheduler.clear(this.timer);
     for (const controller of this.controllers) { controller.abort(); }
     this.controllers.clear();
   }

@@ -4,6 +4,7 @@
   const save = document.getElementById('save');
   const notice = document.getElementById('notice');
   let saved = [];
+  let savedOrder = [...choices.children].map(row => row.dataset.id);
   let dirty = false;
   let saving = false;
   const rows = () => [...choices.children];
@@ -21,10 +22,12 @@
   }
   function restore() {
     const all = rows();
-    const order = [...saved, ...all.map(row => row.dataset.id).filter(id => !saved.includes(id))];
-    order.forEach(id => {
+    savedOrder.forEach(id => {
       const row = all.find(item => item.dataset.id === id);
-      if (row) { row.querySelector('input').checked = saved.includes(id); choices.append(row); }
+      if (row) {
+        row.querySelector('input').checked = saved.includes(id);
+        if (choices.children[savedOrder.indexOf(id)] !== row) { choices.insertBefore(row, choices.children[savedOrder.indexOf(id)] ?? null); }
+      }
     });
     dirty = false;
     buttons();
@@ -61,14 +64,18 @@
   window.addEventListener('message', event => {
     const message = event.data;
     if (message.type === 'update') {
-      document.getElementById('history').innerHTML = message.html || '<p>No providers enabled.</p>';
+      window.updateHistory(message.html);
       saved = message.enabled;
+      savedOrder = message.order;
       if (!dirty && !saving) { restore(); }
     } else if (message.type === 'saved') {
       saved = message.enabled;
+      savedOrder = message.order;
       saving = false;
       restore();
       notice.textContent = 'Saved. Your provider selection and order are applied.';
+    } else if (message.type === 'refreshError') {
+      notice.textContent = message.text;
     } else if (message.type === 'saveError') {
       saving = false;
       buttons();

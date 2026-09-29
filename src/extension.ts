@@ -10,11 +10,12 @@ import { StatusPage } from './ui/StatusPage';
 export function activate(context: vscode.ExtensionContext): void {
   const poller = new StatusPoller();
   const view = new StatusBarView();
-  const details = new StatusDetailsView(providerDefinitions);
+  const details = new StatusDetailsView(context.extensionUri, providerDefinitions);
   const page = new StatusPage(context.extensionUri, providerDefinitions);
+  const providers = createProviders(providerDefinitions.map(provider => provider.id));
   const configure = () => {
     const settings = readSettings();
-    poller.configure(createProviders(settings.enabledProviders), settings.pollIntervalMinutes);
+    poller.configure(settings.enabledProviders.flatMap(id => providers.filter(provider => provider.id === id)), settings.pollIntervalMinutes);
   };
   context.subscriptions.push(
     poller, view, details, page, poller.onUpdate(statuses => { view.render(statuses); details.render(statuses); page.render(statuses); }),
@@ -23,11 +24,8 @@ export function activate(context: vscode.ExtensionContext): void {
     vscode.commands.registerCommand('aiStatus.showDetails', () => details.show()),
     vscode.commands.registerCommand('aiStatus.selectProviders', selectProviders),
     vscode.commands.registerCommand('aiStatus.orderProviders', orderProviders),
-    vscode.commands.registerCommand('aiStatus.openStatusPage', (id: string) => {
-      const provider = providerDefinitions.find(provider => provider.id === id);
-      if (provider) { return vscode.env.openExternal(vscode.Uri.parse(provider.statusPageUrl)); }
-    }),
-    vscode.workspace.onDidChangeConfiguration(event => { if (event.affectsConfiguration('aiStatus')) { configure(); } })
+    vscode.workspace.onDidChangeConfiguration(event => { if (event.affectsConfiguration('aiStatus')) { configure(); } }),
+    vscode.workspace.onDidChangeWorkspaceFolders(configure)
   );
   configure();
 }

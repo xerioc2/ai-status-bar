@@ -35,9 +35,11 @@ Extend the registry's platform construction branch to instantiate the new adapte
 
 All timers and request controllers are owned by the poller, which is registered in `context.subscriptions`. Its update subscription, view, commands, and configuration listener are also registered there. Do not add unowned timers or listeners.
 
-The history panel uses a script-free webview with escaped provider text and a restrictive content security policy. `detailsHtml.ts` renders responsive daily bars; `historyMapper.ts` handles UTC day intervals independently from current status. Historical graphs and a webview were added following the user's request after the original v1 scope. No external chart library, telemetry, or browser-side network requests are used.
+The history views use escaped provider text, local nonce-restricted scripts, and a restrictive content security policy. `detailsHtml.ts` renders responsive daily bars; `historyMapper.ts` handles UTC day intervals independently from current status. Historical graphs and a webview were added following the user's request after the original v1 scope. No external chart library, telemetry, or browser-side network requests are used.
 
-The editor dashboard reuses the same history renderer and adds a local, nonce-restricted script for provider preferences. `StatusPage.ts` validates messages before saving settings; `resources/status-page.js` owns the unsaved form draft. Poll updates replace only the graph rows, preserving edits and focus. The sidebar stays script-free. Test both the sidebar and dashboard when changing the shared renderer.
+The editor dashboard reuses the same history renderer and adds a script for provider preferences. `StatusPage.ts` validates messages before saving settings; `resources/status-page.js` owns the unsaved form draft. Both views use `resources/history-view.js` to preserve expanded reports, scroll, and focus when graph rows update. Provider ordering is computed in `providerSelection.ts` and sent to the dashboard. Webview delivery is disposal-safe. The extension-host suite exercises the real browser DOM and isolated two-folder settings fixtures; no personal settings are changed. Test both views when changing the shared renderer.
+
+Keep provider instances alive across settings changes so the 30-minute optional history cache survives reordering. Only Atlassian Statuspage history is optional; incident.io history remains required on every check because summary omits current incidents. Cached graphs retain their original fetch time and never extrapolate current uptime. Poll scheduling uses one replaceable deadline timer; cooldown requests reschedule instead of dropping work.
 
 ## Verify
 
