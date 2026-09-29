@@ -1,0 +1,93 @@
+{
+  "name": "ai-status-bar",
+  "displayName": "AI Status Bar",
+  "description": "Reported incidents from your AI providers, at a glance.",
+  "version": "0.1.0",
+  "engines": {
+    "vscode": "^1.99.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "activationEvents": [
+    "onStartupFinished"
+  ],
+  "main": "./out/src/extension.js",
+  "scripts": {
+    "vscode:prepublish": "npm run compile",
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./",
+    "lint": "eslint src test",
+    "test": "npm run compile && mocha --ui tdd \"out/test/**/*.test.js\"",
+    "test:extension": "npm run compile && vscode-test"
+  },
+  "contributes": {
+    "views": {
+      "explorer": [{ "type": "webview", "id": "aiStatus.explorer", "name": "AI Status", "icon": "resources/ai-status.svg", "visibility": "collapsed" }]
+    },
+    "menus": {
+      "view/title": [
+        { "command": "aiStatus.openPage", "when": "view == aiStatus.explorer", "group": "navigation@0" },
+        { "command": "aiStatus.selectProviders", "when": "view == aiStatus.explorer", "group": "navigation@1" },
+        { "command": "aiStatus.orderProviders", "when": "view == aiStatus.explorer", "group": "navigation@2" },
+        { "command": "aiStatus.refresh", "when": "view == aiStatus.explorer", "group": "navigation@3" }
+      ]
+    },
+    "commands": [
+      { "command": "aiStatus.openPage", "title": "AI Status: Open Dashboard", "icon": "$(open-preview)" },
+      { "command": "aiStatus.selectProviders", "title": "AI Status: Choose Providers", "icon": "$(list-selection)" },
+      { "command": "aiStatus.orderProviders", "title": "AI Status: Order Providers", "icon": "$(arrow-swap)" },
+      {
+        "command": "aiStatus.refresh",
+        "title": "AI Status: Refresh",
+        "icon": "$(refresh)"
+      },
+      {
+        "command": "aiStatus.showDetails",
+        "title": "AI Status: Show Details"
+      }
+    ],
+    "configuration": {
+      "title": "AI Status",
+      "properties": {
+        "aiStatus.enabledProviders": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "uniqueItems": true,
+          "default": [
+            "anthropic",
+            "openai",
+            "github",
+            "cursor",
+            "perplexity"
+          ],
+          "markdownDescription": "Provider IDs to monitor, in display order. Use AI Status: Choose Providers and AI Status: Order Providers to customize. Defaults to all verified providers. An empty array disables monitoring."
+        },
+        "aiStatus.pollIntervalMinutes": {
+          "type": "number",
+          "default": 3,
+          "minimum": 1,
+          "description": "Minutes between checks (minimum 1)."
+        }
+      }
+    }
+  },
+  "overrides": {
+    "@vscode/test-cli": {
+      "mocha": "$mocha"
+    }
+  },
+  "devDependencies": {
+    "@types/mocha": "^10.0.0",
+    "@types/node": "^22.0.0",
+    "@types/vscode": "^1.99.0",
+    "@vscode/test-cli": "^0.0.15",
+    "@vscode/test-electron": "^2.5.2",
+    "eslint": "^9.0.0",
+    "mocha": "^12.0.2",
+    "typescript": "^5.8.0",
+    "typescript-eslint": "^8.0.0"
+  }
+}

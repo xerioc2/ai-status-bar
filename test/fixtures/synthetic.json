@@ -1,0 +1,18 @@
+{
+  "status": { "indicator": "none" },
+  "components": [
+    { "name": "Clear", "status": "operational" },
+    { "name": "Slow", "status": "degraded_performance" },
+    { "name": "Partial", "status": "partial_outage" },
+    { "name": "Down", "status": "major_outage" },
+    { "name": "Upgrade", "status": "under_maintenance" },
+    { "name": "Unexpected", "status": "new_upstream_status" }
+  ],
+  "incidents": [
+    { "name": "Errors", "status": "investigating", "impact": "minor" },
+    { "name": "Cause found", "status": "identified", "impact": "major" },
+    { "name": "Recovering", "status": "monitoring", "impact": "critical" },
+    { "name": "Done", "status": "resolved", "impact": "critical" },
+    { "name": "New status", "status": "unexpected", "impact": "unexpected" }
+  ]
+}
