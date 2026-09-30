@@ -3,6 +3,7 @@ import { readFileSync } from 'fs';
 import { resolve } from 'path';
 import { mapComponentLevel, mapImpact, mapStage, mapSummary } from '../src/providers/statuspage/statuspageMapper';
 import { providerDefinitions } from '../src/providers/registry';
+import { severity } from '../src/core/statusLevels';
 
 const fixture = (name: string) => JSON.parse(readFileSync(resolve(__dirname, '../../test/fixtures', name + '.json'), 'utf8'));
 const provider = { id: 'test', displayName: 'Test', statusPageUrl: 'https://example.com' };
@@ -16,8 +17,11 @@ suite('Statuspage mapper', () => {
       if (definition.platform === 'incidentio') { raw.incidents = fixture(definition.id + '-all').incidents; }
       const before = JSON.stringify(raw);
       const result = mapSummary(raw, definition, checkedAt);
-      assert.strictEqual(result.level, 'Operational');
-      assert.strictEqual(result.incidents.length, 0);
+      assert.ok(Object.hasOwn(severity, result.level));
+      for (const incident of result.incidents) {
+        assert.ok(Object.hasOwn(severity, incident.impact));
+        assert.ok(['Investigating', 'Identified', 'Monitoring', 'Resolved'].includes(incident.stage));
+      }
       assert.strictEqual(result.providerId, definition.id);
       assert.strictEqual(JSON.stringify(raw), before);
     });

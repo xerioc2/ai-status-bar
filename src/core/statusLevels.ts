@@ -13,3 +13,8 @@ export function worstOf(levels: readonly StatusLevel[]): StatusLevel {
 export function isReportedIssue(level: StatusLevel): boolean {
   return severity[level] > severity.Unknown;
 }
+
+// A published incident deserves attention even when its impact is unspecified.
+export function reportedIncidentLevel(level: StatusLevel): StatusLevel {
+  return level === 'Operational' ? 'Degraded' : level;
+}

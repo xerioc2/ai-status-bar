@@ -89,6 +89,8 @@ export class StatusPoller {
     finally {
       clearTimeout(timeout);
       controller.signal.removeEventListener('abort', rejectAbort);
+      // A rejected adapter may still have sibling requests bound to this signal.
+      controller.abort();
       this.controllers.delete(controller);
     }
   }

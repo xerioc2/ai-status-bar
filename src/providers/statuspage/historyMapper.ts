@@ -1,5 +1,5 @@
-import { HistoryDay, StatusLevel } from '../../core/types';
-import { worstOf } from '../../core/statusLevels';
+import { HistoryDay } from '../../core/types';
+import { reportedIncidentLevel, worstOf } from '../../core/statusLevels';
 import { mapImpact, mapStage } from './statuspageMapper';
 
 const dayMs = 86_400_000;
@@ -21,7 +21,7 @@ export function mapHistory(raw: unknown, now: number, days = 30): HistoryDay[] {
       throw new Error('Incident history has missing or invalid dates');
     }
     const impact = mapImpact(item.impact);
-    return { start, end, level: impact === 'Operational' ? 'Degraded' as StatusLevel : impact,
+    return { start, end, level: reportedIncidentLevel(impact),
       title: typeof item.name === 'string' ? item.name : 'Untitled reported incident' };
   });
   const earliest = Math.min(...periods.map(period => period.start));

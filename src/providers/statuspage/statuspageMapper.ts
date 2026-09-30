@@ -1,5 +1,5 @@
 import { Incident, IncidentStage, ServiceStatus, StatusLevel } from '../../core/types';
-import { worstOf } from '../../core/statusLevels';
+import { reportedIncidentLevel, worstOf } from '../../core/statusLevels';
 import { ProviderIdentity } from '../StatusProvider';
 
 type JsonObject = Record<string, unknown>;
@@ -63,7 +63,7 @@ export function mapSummary(raw: unknown, provider: ProviderIdentity, checkedAt: 
     .map(value => incident(value, provider, true));
   const active = [...incidents, ...maintenance];
   // An active incident with unspecified impact still deserves attention.
-  const incidentLevels = active.map(value => value.impact === 'Operational' ? 'Degraded' as const : value.impact);
+  const incidentLevels = active.map(value => reportedIncidentLevel(value.impact));
   const level = worstOf([mapImpact(object(data.status).indicator), ...components.map(c => c.level), ...incidentLevels]);
   return {
     providerId: provider.id, displayName: provider.displayName, level,
