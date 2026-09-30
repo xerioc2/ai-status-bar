@@ -1,6 +1,6 @@
 {
   "name": "ai-provider-status-monitor",
-  "displayName": "AI Provider Status Monitor",
+  "displayName": "AIUP: AI Service Status",
   "description": "Reported incidents from your AI providers, at a glance.",
   "version": "0.1.0",
   "repository": {
