@@ -3,6 +3,9 @@
   "displayName": "AI Status Bar",
   "description": "Reported incidents from your AI providers, at a glance.",
   "version": "0.1.0",
+  "repository": { "type": "git", "url": "https://github.com/xerioc2/ai-status-bar.git" },
+  "bugs": { "url": "https://github.com/xerioc2/ai-status-bar/issues" },
+  "homepage": "https://github.com/xerioc2/ai-status-bar#readme",
   "engines": {
     "vscode": "^1.99.0"
   },

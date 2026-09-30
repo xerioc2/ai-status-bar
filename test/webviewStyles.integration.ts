@@ -25,10 +25,19 @@ suite('External webview stylesheet', () => {
         });
         const probe = `<script nonce="${page.nonce}">
           const api = acquireVsCodeApi();
-          window.addEventListener('load', () => {
+          window.addEventListener('load', async () => {
+            const iconLoads = await Promise.all(['anthropic', 'openai', 'github', 'cursor', 'perplexity'].map(id => new Promise(resolve => {
+              const image = new Image();
+              image.onload = () => resolve(image.naturalWidth > 0);
+              image.onerror = () => resolve(false);
+              image.src = new URL('icons/' + id + '.svg', document.querySelector('link[rel="stylesheet"]').href).href;
+            })));
             api.postMessage({
+              iconsLoaded: String(iconLoads.every(Boolean)),
               barHeight: getComputedStyle(document.querySelector('.bar')).height,
               barColor: getComputedStyle(document.querySelector('.bar')).backgroundColor,
+              themeGreen: getComputedStyle(document.documentElement).getPropertyValue('--vscode-charts-green').trim(),
+              preferencesCollapsed: String(!document.querySelector('.preferences')?.open),
               barsLayout: getComputedStyle(document.querySelector('.bars')).display,
               tooltip: getComputedStyle(document.querySelector('.tip')).display,
               bodyPadding: getComputedStyle(document.body).paddingLeft,
@@ -38,8 +47,15 @@ suite('External webview stylesheet', () => {
           });
         </script>`;
         panel.webview.html = detailsHtml([status], providers, page).replace('</body>', probe + '</body>');
-        assert.deepStrictEqual(await result, {
-          barHeight: '25px', barColor: 'rgb(32, 191, 165)', barsLayout: 'flex', tooltip: 'none',
+        const { barColor, themeGreen, preferencesCollapsed, iconsLoaded, ...layout } = await result;
+        assert.strictEqual(iconsLoaded, 'true', 'All bundled icons must load under the production CSP');
+        const green = themeGreen || '#20bfa5';
+        const expectedGreen = /^#[\da-f]{6}$/i.test(green)
+          ? `rgb(${[1, 3, 5].map(start => parseInt(green.slice(start, start + 2), 16)).join(', ')})` : green;
+        assert.strictEqual(barColor, expectedGreen);
+        assert.strictEqual(preferencesCollapsed, 'true');
+        assert.deepStrictEqual(layout, {
+          barHeight: '25px', barsLayout: 'flex', tooltip: 'none',
           bodyPadding: dashboard ? '24px' : '10px', titleSize: dashboard ? '24px' : '14px', historyTitleSize: dashboard ? '16px' : '14px'
         });
       } finally { clearTimeout(timeout); listener?.dispose(); panel.dispose(); }

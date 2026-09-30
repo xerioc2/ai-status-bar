@@ -2,7 +2,7 @@
 
 Reported AI service incidents in one VS Code status bar item. Hover for provider reports, affected components, incident severity, response stage, latest update, and last checked time. Click to open **AI Status** as a collapsible section in the Explorer sidebar, alongside Outline and Timeline. It starts collapsed; collapse its header when you want it tucked away, or right-click the header and uncheck AI Status to hide it. Each provider has a 30-day incident-history graph. Select its name to open the official status page, hover or keyboard-focus a daily bar for incidents, and expand **Report details** for the current report. The view updates automatically and includes a Refresh button.
 
-History bars show the worst published incident impact overlapping each UTC day. Green means no incident in the returned feed for that day; striped means history is unavailable or impact is unknown. Dates before the oldest returned incident remain unknown, and empty feeds never produce invented green history. Feeds are bounded and may omit incidents; these graphs are not measured uptime and do not reproduce official uptime percentages. History is provider-wide, not per product, and scheduled-maintenance history is not included. The last bar covers only the portion of that date included in the fetched report.
+The graphs show **days with reported incidents**. A colored bar does not mean the service was down all day; its color represents the worst published incident impact overlapping that UTC day. Green means no incident in the returned feed for that day. Faint outlines mean history is unavailable; striped bars mean an incident has unknown impact. Colors follow your VS Code theme, and hovering or focusing a bar shows its date and incident details. Dates before the oldest returned incident remain unknown, and empty feeds never produce invented green history. Feeds are bounded and may omit incidents; these graphs are not measured uptime and do not reproduce official uptime percentages. History is provider-wide, not per product, and scheduled-maintenance history is not included. The last bar covers only the portion of that date included in the fetched report.
 
 Claude, GitHub, and Cursor history is cached for 30 minutes independently of current status; failed optional history requests preserve current status and any cached graph. **Report details** shows when history was fetched. OpenAI and Perplexity require the incident feed for current status, so those feeds stay fresh on every poll. Refreshes preserve expanded report sections, scroll position, keyboard focus, and dashboard edits.
 
@@ -35,7 +35,7 @@ The default launch runs without attaching a debugger and disables other installe
 
 ## Settings
 
-Open **AI Status: Open Dashboard** from the Command Palette, or click **Open Dashboard** in the AI Status sidebar header. The editor page brings together provider checkboxes, up/down ordering buttons, and status graphs. Click **Save changes** to apply your selection and order everywhere; **Reset changes** restores saved settings. Unsaved edits survive switching tabs while the page is open. Closing the dashboard discards unsaved edits. Opening it again focuses the existing tab when one is already open.
+Open **AI Status: Open Dashboard** from the Command Palette, or click **Open Dashboard** in the AI Status sidebar header. The editor page puts status and history first. Expand **Customize providers** for provider checkboxes and compact up/down ordering buttons. Click **Save changes** to apply your selection and order everywhere; **Reset changes** restores saved settings. Unsaved edits survive switching tabs while the page is open. Closing the dashboard discards unsaved edits. Opening it again focuses the existing tab when one is already open.
 
 Use the **Choose Providers** button in the AI Status section header to check which providers appear. Use **Order Providers** to move them with the row's up/down arrows, then press Enter to save (Escape cancels). The sidebar and status-bar tooltip immediately follow that order. Choices are saved in user settings unless the workspace already overrides the provider list, in which case that override is updated.
 
@@ -72,5 +72,7 @@ _Placeholder: status bar showing no reported incidents._
 _Placeholder: warning tooltip with severity, response stage, and latest provider update._
 
 ## Development
+
+Suggestions and bug reports are welcome in [GitHub issues](https://github.com/xerioc2/ai-status-bar/issues), and contributions are welcome via pull requests. Both views include links to the repository and contribution guide. Provider icons are bundled locally; attribution is in [resources/icons/README.md](resources/icons/README.md).
 
 See [CONTRIBUTING.md](CONTRIBUTING.md). `npm test` runs offline Mocha unit tests; `npm run test:extension` runs tests in a downloaded VS Code host using the standard VS Code test tools.

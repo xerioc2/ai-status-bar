@@ -14,6 +14,15 @@ suite('History panel HTML', () => {
   test('empty provider selection has a useful message', () => {
     assert.match(detailsHtml([], []), /No providers enabled/);
   });
+  test('missing history is neutral and settings start collapsed', () => {
+    const html = detailsHtml([{ providerId: 'a', displayName: 'A', level: 'Unknown', checkedAt: '', incidents: [], affectedComponents: [], history: [{ date: '2026-09-29', level: 'Unknown', incidents: [] }] }], []);
+    assert.match(html, /Unknown missing-history/);
+    assert.match(html, /Days with reported incidents/);
+    assert.match(html, /Last 30 days · UTC/);
+    const preferences = preferencesHtml([], []);
+    assert.match(preferences, /<details class="preferences"><summary>Customize providers/);
+    assert.ok(!preferences.includes('<details class="preferences" open'));
+  });
   test('interactive views add nonce-restricted scripts; static rendering has no scripts', () => {
     const html = detailsHtml([], [], { header: '<h1>AI Status</h1>', nonce: 'test-nonce', cspSource: 'https://webview.test', styleUri: 'https://webview.test/styles.css', scriptUris: ['https://webview.test/status-page.js'] });
     assert.ok(html.includes("script-src 'nonce-test-nonce'"));
