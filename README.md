@@ -1,4 +1,4 @@
-# AI Status Bar
+# AI Provider Status Monitor
 
 Reported AI service incidents in one VS Code status bar item. Hover for provider reports, affected components, incident severity, response stage, latest update, and last checked time. Click to open **AI Status** as a collapsible section in the Explorer sidebar, alongside Outline and Timeline. It starts collapsed; collapse its header when you want it tucked away, or right-click the header and uncheck AI Status to hide it. Each provider has a 30-day incident-history graph. Select its name to open the official status page, hover or keyboard-focus a daily bar for incidents, and expand **Report details** for the current report. The view updates automatically and includes a Refresh button.
 
@@ -87,4 +87,4 @@ The API types are pinned to the minimum supported VS Code release, and the exten
 
 ## License and affiliation
 
-[AI Status Bar on GitHub](https://github.com/xerioc2/ai-status-bar) is released under the [MIT license](LICENSE). Bundled provider icons retain their [Simple Icons CC0 license and attribution](resources/icons/README.md). Provider names and logos belong to their respective owners. This project is independent and is not affiliated with or endorsed by those providers. The extension's own icon is original project artwork.
+[AI Provider Status Monitor on GitHub](https://github.com/xerioc2/ai-status-bar) is released under the [MIT license](LICENSE). Bundled provider icons retain their [Simple Icons CC0 license and attribution](resources/icons/README.md). Provider names and logos belong to their respective owners. This project is independent and is not affiliated with or endorsed by those providers. The extension's own icon is original project artwork.

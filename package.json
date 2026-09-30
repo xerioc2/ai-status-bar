@@ -1,6 +1,6 @@
 {
   "name": "ai-provider-status-monitor",
-  "displayName": "AI Status Bar",
+  "displayName": "AI Provider Status Monitor",
   "description": "Reported incidents from your AI providers, at a glance.",
   "version": "0.1.0",
   "repository": {
