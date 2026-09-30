@@ -9,3 +9,10 @@ tsconfig.json
 eslint.config.mjs
 .vscode-test.mjs
 node_modules/**
+.github/**
+scripts/**
+.editorconfig
+.gitattributes
+package-lock.json
+.gitignore
+!CONTRIBUTING.md

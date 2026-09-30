@@ -8,7 +8,11 @@ Claude, GitHub, and Cursor history is cached for 30 minutes independently of cur
 
 **This extension reports only what providers publish.** “No reported incidents” is not a guarantee of availability. Reports can lag real problems and may cover products beyond the AI tool you use. Unknown means the status API could not be read or returned an unexpected value; it does not mean the provider is down.
 
-Supported providers: Anthropic (Claude), OpenAI (ChatGPT / Codex), GitHub (including Copilot), Cursor, and Perplexity. Google Gemini and DeepSeek are not yet supported; see [provider reconnaissance](PROVIDER_RECON.md) for verified endpoints and limitations.
+## Supported providers
+
+Anthropic (Claude), OpenAI (ChatGPT / Codex), GitHub (including Copilot), Cursor, and Perplexity. Google Gemini and DeepSeek are not yet supported; see [provider reconnaissance](PROVIDER_RECON.md) for verified endpoints and limitations.
+
+## Status bar
 
 | Indicator | Meaning |
 | --- | --- |
@@ -19,12 +23,18 @@ Supported providers: Anthropic (Claude), OpenAI (ChatGPT / Codex), GitHub (inclu
 
 The count is affected providers, not incidents. Reported issues take precedence over unknowns. Mixed clear/unknown results show a question mark; the tooltip always lists each provider separately. Active incidents with unspecified impact receive a warning. Scheduled future maintenance does not count as a current incident.
 
+## Install
+
+Requires VS Code **1.138.0 or newer**. This project is preparing its first Marketplace release; no Marketplace listing is claimed yet.
+
+To install a packaged build, run **Extensions: Install from VSIX...** from the Command Palette and select `ai-status-bar-0.1.0.vsix`, or run `code --install-extension ai-status-bar-0.1.0.vsix`. To build that file from source, use `npm ci` then `npm run package`.
+
 ## Run locally
 
-Requires Node.js 22 or newer and VS Code 1.99 or newer.
+Development requires Node.js 22 or newer and VS Code 1.138.0 or newer.
 
 ```sh
-npm install
+npm ci
 npm test
 npm run lint
 ```
@@ -33,7 +43,7 @@ Open this directory in VS Code and press **F5**, using **Run AI Status Bar**. Th
 
 The default launch runs without attaching a debugger and disables other installed extensions in the development window. Choose **Debug AI Status Bar** when you need breakpoints. If an older development window shows “Extension host did not start in 10 seconds,” close it, stop the previous launch in the original window, and start **Run AI Status Bar** again. Reloading that stalled window reuses its debugger-waiting launch arguments.
 
-## Settings
+## Dashboard and settings
 
 Open **AI Status: Open Dashboard** from the Command Palette, or click **Open Dashboard** in the AI Status sidebar header. The editor page puts status and history first. Expand **Customize providers** for provider checkboxes and compact up/down ordering buttons. Click **Save changes** to apply your selection and order everywhere; **Reset changes** restores saved settings. Unsaved edits survive switching tabs while the page is open. Closing the dashboard discards unsaved edits. Opening it again focuses the existing tab when one is already open.
 
@@ -63,16 +73,18 @@ Commands in the Command Palette:
 - **AI Status: Choose Providers** — choose which providers appear and are polled.
 - **AI Status: Order Providers** — arrange enabled providers using up/down arrows.
 
-Requests time out after 10 seconds. Failures replace previously successful status with Unknown. No authentication, telemetry, backend, notifications, or runtime dependencies. Requests go directly to official status APIs; their operators receive ordinary HTTP connection metadata.
+## Privacy and network behavior
 
-## Screenshots
-
-_Placeholder: status bar showing no reported incidents._
-
-_Placeholder: warning tooltip with severity, response stage, and latest provider update._
+Requests time out after 10 seconds. Failures replace previously successful status with Unknown. No authentication, telemetry, backend, notifications, or runtime dependencies. Requests go directly to enabled providers' official status APIs; their operators receive ordinary HTTP connection metadata. Each open VS Code window runs its own checks. No workspace files or source code are sent. Icons are bundled locally. Clicking an external link opens the relevant site in your browser.
 
 ## Development
 
 Suggestions and bug reports are welcome in [GitHub issues](https://github.com/xerioc2/ai-status-bar/issues), and contributions are welcome via pull requests. Both views include links to the repository and contribution guide. Provider icons are bundled locally; attribution is in [resources/icons/README.md](resources/icons/README.md).
 
 See [CONTRIBUTING.md](CONTRIBUTING.md). `npm test` runs offline Mocha unit tests; `npm run test:extension` runs tests in a downloaded VS Code host using the standard VS Code test tools.
+
+The API types are pinned to the minimum supported VS Code release, and the extension-host suite defaults to that version. CI also tests current stable VS Code.
+
+## License and affiliation
+
+[AI Status Bar on GitHub](https://github.com/xerioc2/ai-status-bar) is released under the [MIT license](LICENSE). Bundled provider icons retain their [Simple Icons CC0 license and attribution](resources/icons/README.md). Provider names and logos belong to their respective owners. This project is independent and is not affiliated with or endorsed by those providers. The extension's own icon is original project artwork.
