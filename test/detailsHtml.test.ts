@@ -1,5 +1,5 @@
 import * as assert from 'assert';
-import { detailsHtml } from '../src/ui/detailsHtml';
+import { detailsHtml, preferencesHtml } from '../src/ui/detailsHtml';
 
 suite('History panel HTML', () => {
   test('escapes upstream text, shows dated bars and restricts content', () => {
@@ -15,10 +15,20 @@ suite('History panel HTML', () => {
     assert.match(detailsHtml([], []), /No providers enabled/);
   });
   test('interactive views add nonce-restricted scripts; static rendering has no scripts', () => {
-    const html = detailsHtml([], [], { header: '<h1>AI Status</h1>', nonce: 'test-nonce', scriptUri: 'https://example.com/status-page.js' });
+    const html = detailsHtml([], [], { header: '<h1>AI Status</h1>', nonce: 'test-nonce', cspSource: 'https://webview.test', styleUri: 'https://webview.test/styles.css', scriptUris: ['https://webview.test/status-page.js'] });
     assert.ok(html.includes("script-src 'nonce-test-nonce'"));
-    assert.ok(html.includes('<script nonce="test-nonce"'));
+    assert.ok(html.includes('style-src https://webview.test'));
+    assert.ok(!html.includes('unsafe-inline'));
+    assert.ok(html.includes('<script nonce="test-nonce" src="https://webview.test/status-page.js"'));
+    assert.ok(html.includes('<body class="dashboard">'));
     assert.ok(html.includes('id="history"'));
     assert.ok(!detailsHtml([], []).includes('<script'));
+  });
+  test('preferences escape provider names and keep the given order', () => {
+    const html = preferencesHtml([{ id: 'b', displayName: '<B>', statusPageUrl: '' }, { id: 'a', displayName: 'A', statusPageUrl: '' }], ['a']);
+    assert.ok(html.indexOf('data-id="b"') < html.indexOf('data-id="a"'));
+    assert.ok(html.includes('&lt;B&gt;') && !html.includes('<B>'));
+    assert.match(html, /data-id="a"><label><input type="checkbox" checked>/);
+    assert.match(html, /data-id="b"><label><input type="checkbox" >/);
   });
 });

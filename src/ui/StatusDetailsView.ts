@@ -1,15 +1,15 @@
-﻿import * as vscode from 'vscode';
+import * as vscode from 'vscode';
 import { ServiceStatus } from '../core/types';
-import { randomBytes } from 'crypto';
 import { ProviderIdentity } from '../providers/StatusProvider';
 import { detailsHtml, statusRowsHtml } from './detailsHtml';
 import { postToView } from './webviewMessages';
+import { webviewPage } from './webviewPage';
 
+// The collapsible "AI Status" section in the Explorer sidebar.
 export class StatusDetailsView implements vscode.WebviewViewProvider, vscode.Disposable {
   private readonly registration: vscode.Disposable;
   private view: vscode.WebviewView | undefined;
-  private viewDisposal: vscode.Disposable | undefined;
-  private messages: vscode.Disposable | undefined;
+  private viewSubscriptions: vscode.Disposable[] = [];
   private statuses: readonly ServiceStatus[] = [];
 
   constructor(private readonly extensionUri: vscode.Uri, private readonly providers: readonly ProviderIdentity[]) {
@@ -17,18 +17,13 @@ export class StatusDetailsView implements vscode.WebviewViewProvider, vscode.Dis
   }
 
   resolveWebviewView(view: vscode.WebviewView): void {
-    this.viewDisposal?.dispose();
-    this.messages?.dispose();
+    this.disposeView();
     this.view = view;
-    this.viewDisposal = view.onDidDispose(() => { this.view = undefined; });
-    const resources = vscode.Uri.joinPath(this.extensionUri, 'resources');
-    view.webview.options = { enableScripts: true, localResourceRoots: [resources] };
-    view.webview.html = detailsHtml(this.statuses, this.providers, {
-      header: '', nonce: randomBytes(16).toString('hex'),
-      scriptUri: view.webview.asWebviewUri(vscode.Uri.joinPath(resources, 'sidebar.js')).toString(),
-      historyScriptUri: view.webview.asWebviewUri(vscode.Uri.joinPath(resources, 'history-view.js')).toString()
-    });
-    this.messages = view.webview.onDidReceiveMessage(message => { if (message?.type === 'ready') { this.render(this.statuses); } });
+    view.webview.html = detailsHtml(this.statuses, this.providers, webviewPage(view.webview, this.extensionUri, 'sidebar.js'));
+    this.viewSubscriptions = [
+      view.onDidDispose(() => { this.view = undefined; }),
+      view.webview.onDidReceiveMessage(message => { if (message?.type === 'ready') { this.render(this.statuses); } })
+    ];
   }
 
   render(statuses: readonly ServiceStatus[]): void {
@@ -40,5 +35,7 @@ export class StatusDetailsView implements vscode.WebviewViewProvider, vscode.Dis
     await vscode.commands.executeCommand('aiStatus.explorer.focus');
   }
 
-  dispose(): void { this.registration.dispose(); this.viewDisposal?.dispose(); this.messages?.dispose(); this.view = undefined; }
+  private disposeView(): void { this.viewSubscriptions.splice(0).forEach(item => item.dispose()); }
+
+  dispose(): void { this.registration.dispose(); this.disposeView(); this.view = undefined; }
 }

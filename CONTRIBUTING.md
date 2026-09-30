@@ -22,14 +22,14 @@ Create a directory under `src/providers/`. Implement the `StatusProvider` interf
 
 Put parsing in a separate pure mapper accepting unknown JSON, identity, and check time, returning `ServiceStatus`. Keep level and incident stage separate. Unexpected severity maps to Unknown; unexpected incident stage currently maps conservatively to Investigating with Unknown impact because the four-stage model has no Unknown stage. Map maintenance stages to their nearest response stage and document the choice. Never silently turn malformed data into an all-clear.
 
-Extend the registry's platform construction branch to instantiate the new adapter. No poller or UI modifications should be needed. Add real fixture tests and synthetic tests for all upstream values, malformed data, resolved history, and active maintenance. Do not guess severity from incident prose.
+Add the platform name to `StatusPlatform` in `StatusProvider.ts` and choose the new adapter by `definition.platform` in `createProviders` (`registry.ts`). No poller or UI modifications should be needed. Add real fixture tests and synthetic tests for all upstream values, malformed data, resolved history, and active maintenance. Do not guess severity from incident prose.
 
 ## Source layout
 
 - `src/core`: common model and severity ordering.
 - `src/providers`: definitions, HTTP adapters, and pure mapping.
 - `src/services/StatusPoller.ts`: independent concurrent checks and disposable lifecycle.
-- `src/ui`: pure formatting and VS Code rendering. All labels, icons, and theme keys live in `formatters.ts`.
+- `src/ui`: pure formatting and VS Code rendering. Labels, icons, and status bar theme keys live in `formatters.ts`; webview layout and chart colors live in `resources/styles.css`; `webviewPage.ts` holds the shared webview setup (CSP, nonce, script and style URIs).
 - `src/config/settings.ts`: settings validation.
 - `src/extension.ts`: activation wiring only.
 
@@ -39,7 +39,7 @@ The history views use escaped provider text, local nonce-restricted scripts, and
 
 The editor dashboard reuses the same history renderer and adds a script for provider preferences. `StatusPage.ts` validates messages before saving settings; `resources/status-page.js` owns the unsaved form draft. Both views use `resources/history-view.js` to preserve expanded reports, scroll, and focus when graph rows update. Provider ordering is computed in `providerSelection.ts` and sent to the dashboard. Webview delivery is disposal-safe. The extension-host suite exercises the real browser DOM and isolated two-folder settings fixtures; no personal settings are changed. Test both views when changing the shared renderer.
 
-Keep provider instances alive across settings changes so the 30-minute optional history cache survives reordering. Only Atlassian Statuspage history is optional; incident.io history remains required on every check because summary omits current incidents. Cached graphs retain their original fetch time and never extrapolate current uptime. Poll scheduling uses one replaceable deadline timer; cooldown requests reschedule instead of dropping work.
+Keep provider instances alive across settings changes so the 30-minute optional history cache survives reordering. Only Atlassian Statuspage history is optional; incident.io history remains required on every check because summary omits current incidents. A failed optional history request is retried after 5 minutes; a cancelled one is retried on the next check. Cached graphs retain their original fetch time and never extrapolate current uptime. Poll scheduling uses one replaceable deadline timer; cooldown requests reschedule instead of dropping work.
 
 ## Verify
 

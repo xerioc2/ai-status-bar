@@ -1,0 +1,52 @@
+/* Shared by the Explorer sidebar and the dashboard editor tab. */
+body { color: var(--vscode-foreground); background: var(--vscode-sideBar-background); font-family: var(--vscode-font-family); font-size: var(--vscode-font-size); padding: 8px 10px; margin: 0; }
+header { margin-bottom: 16px; }
+h1 { font-size: 14px; margin: 0 0 6px; }
+h2 { font-size: 13px; margin: 0 0 7px; font-weight: 600; }
+p { line-height: 1.5; margin: 4px 0; }
+a { color: var(--vscode-textLink-foreground); text-decoration: none; }
+a:hover { text-decoration: underline; }
+:focus-visible { outline: 1px solid var(--vscode-focusBorder); }
+.muted, .dates, summary { color: var(--vscode-descriptionForeground); }
+
+/* Provider rows */
+article { display: grid; grid-template-columns: minmax(200px, 1fr) minmax(220px, 2fr); gap: 10px 24px; padding: 16px 0; border-top: 1px solid var(--vscode-panel-border); }
+.status { display: flex; align-items: center; gap: 7px; }
+.dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; flex-shrink: 0; }
+details { grid-column: 1 / -1; }
+summary { cursor: pointer; font-size: 11px; }
+pre { font: inherit; white-space: pre-wrap; line-height: 1.6; overflow-wrap: anywhere; }
+
+/* 30-day history bars */
+.bars { display: flex; gap: 3px; padding: 3px 0; }
+.bar { position: relative; height: 25px; flex: 1; min-width: 3px; border-radius: 2px; outline-offset: 2px; }
+.dates { display: flex; justify-content: space-between; font-size: 11px; margin-top: 5px; }
+.tip { display: none; position: absolute; top: 32px; right: 0; width: 240px; white-space: pre-wrap; background: var(--vscode-editorHoverWidget-background); color: var(--vscode-editorHoverWidget-foreground); border: 1px solid var(--vscode-editorHoverWidget-border); padding: 8px; z-index: 10; box-shadow: 0 2px 8px var(--vscode-widget-shadow); }
+.bar:nth-child(-n+15) .tip { left: 0; right: auto; }
+.bar:hover .tip, .bar:focus .tip { display: block; }
+.legend { display: flex; gap: 14px; flex-wrap: wrap; font-size: 11px; margin-top: 10px; }
+.legend span { display: flex; align-items: center; gap: 5px; }
+
+/* Status level colors, used by dots and bars. Class names match StatusLevel. */
+.Operational { background: #20bfa5; }
+.Maintenance { background: #699bea; }
+.Degraded { background: #e9bd35; }
+.PartialOutage { background: #ee9149; }
+.MajorOutage { background: #ef6464; }
+.Unknown { background: repeating-linear-gradient(135deg, var(--vscode-disabledForeground) 0 2px, transparent 2px 4px); outline: 1px solid var(--vscode-disabledForeground); }
+
+@media (max-width: 540px) { article { grid-template-columns: 1fr; } .tip { width: 160px; } }
+
+/* Dashboard editor tab */
+body.dashboard { background: var(--vscode-editor-background); max-width: 1050px; padding: 24px; margin: auto; }
+.dashboard h1 { font-size: 24px; }
+.dashboard h2, .dashboard .history-heading { font-size: 16px; }
+.preferences { margin: 24px 0; padding: 16px; border: 1px solid var(--vscode-panel-border); border-radius: 6px; }
+.choice { display: flex; align-items: center; gap: 10px; padding: 8px 0; }
+.choice label { flex: 1; }
+.actions { display: flex; align-items: center; gap: 10px; margin: 12px 0; flex-wrap: wrap; }
+#notice { min-height: 1.5em; }
+input { accent-color: var(--vscode-focusBorder); }
+button { cursor: pointer; color: var(--vscode-button-foreground); background: var(--vscode-button-background); border: 1px solid transparent; border-radius: 3px; padding: 6px 10px; font: inherit; }
+button:hover { background: var(--vscode-button-hoverBackground); }
+button:disabled { opacity: .45; cursor: default; }
