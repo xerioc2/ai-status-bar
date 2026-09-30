@@ -10,12 +10,8 @@ a:hover { text-decoration: underline; }
 .muted, .dates, summary { color: var(--vscode-descriptionForeground); }
 
 /* Provider rows */
-.provider-icon { display: inline-block; width: 16px; height: 16px; margin-right: 7px; vertical-align: -3px; background-color: currentColor; mask: var(--provider-icon) center / contain no-repeat; }
-.icon-anthropic { --provider-icon: url('icons/anthropic.svg'); }
-.icon-openai { --provider-icon: url('icons/openai.svg'); }
-.icon-github { --provider-icon: url('icons/github.svg'); }
-.icon-cursor { --provider-icon: url('icons/cursor.svg'); }
-.icon-perplexity { --provider-icon: url('icons/perplexity.svg'); }
+.provider-icon { display: inline-block; width: 16px; height: 16px; margin-right: 7px; vertical-align: -3px; }
+.vscode-dark .provider-icon, .vscode-high-contrast .provider-icon { filter: invert(1); }
 .project-links { display: flex; flex-wrap: wrap; gap: 8px 16px; padding: 16px 0 8px; border-top: 1px solid var(--vscode-panel-border); font-size: 11px; }
 article { display: grid; grid-template-columns: minmax(200px, 1fr) minmax(220px, 2fr); gap: 10px 24px; padding: 16px 0; border-top: 1px solid var(--vscode-panel-border); }
 .status { display: flex; align-items: center; gap: 7px; }

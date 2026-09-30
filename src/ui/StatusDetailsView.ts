@@ -3,7 +3,7 @@ import { ServiceStatus } from '../core/types';
 import { ProviderIdentity } from '../providers/StatusProvider';
 import { detailsHtml, statusRowsHtml } from './detailsHtml';
 import { postToView } from './webviewMessages';
-import { webviewPage } from './webviewPage';
+import { providerIconUris, webviewPage } from './webviewPage';
 
 // The collapsible "AI Status" section in the Explorer sidebar.
 export class StatusDetailsView implements vscode.WebviewViewProvider, vscode.Disposable {
@@ -19,7 +19,7 @@ export class StatusDetailsView implements vscode.WebviewViewProvider, vscode.Dis
   resolveWebviewView(view: vscode.WebviewView): void {
     this.disposeView();
     this.view = view;
-    view.webview.html = detailsHtml(this.statuses, this.providers, webviewPage(view.webview, this.extensionUri, 'sidebar.js'));
+    view.webview.html = detailsHtml(this.statuses, this.providers, { ...webviewPage(view.webview, this.extensionUri, 'sidebar.js'), iconUris: providerIconUris(view.webview, this.extensionUri, this.providers) });
     this.viewSubscriptions = [
       view.onDidDispose(() => { this.view = undefined; }),
       view.webview.onDidReceiveMessage(message => { if (message?.type === 'ready') { this.render(this.statuses); } })
@@ -28,7 +28,7 @@ export class StatusDetailsView implements vscode.WebviewViewProvider, vscode.Dis
 
   render(statuses: readonly ServiceStatus[]): void {
     this.statuses = statuses;
-    if (this.view) { void postToView(this.view.webview, { type: 'update', html: statusRowsHtml(statuses, this.providers) }); }
+    if (this.view) { void postToView(this.view.webview, { type: 'update', html: statusRowsHtml(statuses, this.providers, providerIconUris(this.view.webview, this.extensionUri, this.providers)) }); }
   }
 
   async show(): Promise<void> {

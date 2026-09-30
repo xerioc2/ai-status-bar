@@ -1,7 +1,15 @@
 import * as assert from 'assert';
-import { detailsHtml, preferencesHtml } from '../src/ui/detailsHtml';
+import { detailsHtml, preferencesHtml, statusRowsHtml } from '../src/ui/detailsHtml';
 
 suite('History panel HTML', () => {
+  test('new provider icons need only metadata, with text fallback when absent', () => {
+    const providers = [{ id: 'new-provider', displayName: 'New Provider', statusPageUrl: 'https://example.com' }];
+    const status = { providerId: 'new-provider', displayName: 'New Provider', level: 'Operational' as const, checkedAt: '', affectedComponents: [], incidents: [] };
+    const icons = { 'new-provider': 'https://webview.test/icons/new-provider.svg' };
+    assert.match(statusRowsHtml([status], providers, icons), /src="https:\/\/webview.test\/icons\/new-provider.svg" alt=""/);
+    assert.match(preferencesHtml(providers, [], icons), /class="provider-icon"/);
+    assert.ok(!statusRowsHtml([status], providers).includes('<img'));
+  });
   test('escapes upstream text, shows dated bars and restricts content', () => {
     const html = detailsHtml([{ providerId: 'a', displayName: '<script>bad</script>', level: 'Operational', checkedAt: '', affectedComponents: [], incidents: [], history: [{ date: '2026-09-28', level: 'Degraded', incidents: ['<img src=x onerror=bad>'] }] }], [{ id: 'a', displayName: 'A', statusPageUrl: 'https://example.com' }]);
     assert.ok(!html.includes('<script>'));

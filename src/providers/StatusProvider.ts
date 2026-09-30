@@ -4,6 +4,8 @@ export interface ProviderIdentity {
   id: string;
   displayName: string;
   statusPageUrl: string;
+  // Optional local SVG filename under resources/icons (never an upstream URL).
+  icon?: string;
 }
 
 // 'statuspage': Atlassian Statuspage, whose summary includes active incidents.

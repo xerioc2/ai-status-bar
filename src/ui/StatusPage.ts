@@ -5,7 +5,7 @@ import { normalizeProviders, providerOrder } from '../config/providerSelection';
 import { readSettings, saveProviders } from '../config/settings';
 import { detailsHtml, preferencesHtml, statusRowsHtml } from './detailsHtml';
 import { postToView } from './webviewMessages';
-import { webviewPage } from './webviewPage';
+import { providerIconUris, webviewPage } from './webviewPage';
 
 // The "AI Status: Open Dashboard" editor tab: provider preferences plus history.
 export class StatusPage implements vscode.Disposable {
@@ -26,7 +26,9 @@ export class StatusPage implements vscode.Disposable {
     const webview = panel.webview;
     const { enabled, order } = this.preferences();
     const choices = order.flatMap(id => this.providers.filter(provider => provider.id === id));
-    webview.html = detailsHtml(this.statuses, this.providers, webviewPage(webview, this.extensionUri, 'status-page.js', preferencesHtml(choices, enabled)));
+    const iconUris = providerIconUris(webview, this.extensionUri, this.providers);
+    const page = webviewPage(webview, this.extensionUri, 'status-page.js', preferencesHtml(choices, enabled, iconUris));
+    webview.html = detailsHtml(this.statuses, this.providers, { ...page, iconUris });
     this.subscriptions = [
       panel.onDidDispose(() => {
         this.panel = undefined;
@@ -39,7 +41,7 @@ export class StatusPage implements vscode.Disposable {
   render(statuses: readonly ServiceStatus[]): void {
     this.statuses = statuses;
     if (this.panel) {
-      void postToView(this.panel.webview, { type: 'update', html: statusRowsHtml(statuses, this.providers), ...this.preferences() });
+      void postToView(this.panel.webview, { type: 'update', html: statusRowsHtml(statuses, this.providers, providerIconUris(this.panel.webview, this.extensionUri, this.providers)), ...this.preferences() });
     }
   }
 

@@ -1,3 +1,4 @@
+import { projectUrls } from '../projectMetadata';
 import { ServiceStatus, StatusLevel } from '../core/types';
 import { ProviderIdentity } from '../providers/StatusProvider';
 import { levelPresentation, providerText } from './formatters';
@@ -9,9 +10,9 @@ export const escapeHtml = (text: string): string => text.replace(/[&<>"']/g, cha
 
 const levels: StatusLevel[] = ['Operational', 'Degraded', 'PartialOutage', 'MajorOutage', 'Maintenance', 'Unknown'];
 
-function providerIcon(id: string): string {
-  return ['anthropic', 'openai', 'github', 'cursor', 'perplexity'].includes(id)
-    ? `<span class="provider-icon icon-${id}" aria-hidden="true"></span>` : '';
+function providerIcon(id: string, icons: Readonly<Record<string, string>>): string {
+  const uri = Object.hasOwn(icons, id) ? icons[id] : undefined;
+  return uri ? `<img class="provider-icon" src="${escapeHtml(uri)}" alt="" aria-hidden="true">` : '';
 }
 
 function historyLabel(level: StatusLevel): string {
@@ -44,10 +45,10 @@ function reportHtml(status: ServiceStatus): string {
   return `<details class="report"><summary data-focus="report">Report details <span class="checked">· ${checked}</span></summary><pre>${escapeHtml(providerText(status, Date.now()))}</pre>${historyFetched}${links}</details>`;
 }
 
-export function statusRowsHtml(statuses: readonly ServiceStatus[], providers: readonly ProviderIdentity[]): string {
+export function statusRowsHtml(statuses: readonly ServiceStatus[], providers: readonly ProviderIdentity[], icons: Readonly<Record<string, string>> = {}): string {
   return statuses.map(status => {
     const url = providers.find(provider => provider.id === status.providerId)?.statusPageUrl;
-    const name = providerIcon(status.providerId) + escapeHtml(status.displayName);
+    const name = providerIcon(status.providerId, icons) + escapeHtml(status.displayName);
     const heading = url?.startsWith('https://') ? `<a data-focus="provider" href="${escapeHtml(url)}">${name} ↗</a>` : name;
     return `<article data-provider="${escapeHtml(status.providerId)}">`
       + `<div class="provider"><h2>${heading}</h2><span class="status"><i class="dot ${status.level}"></i><span class="muted">Now:</span> ${escapeHtml(levelPresentation[status.level].label)}</span></div>`
@@ -56,10 +57,10 @@ export function statusRowsHtml(statuses: readonly ServiceStatus[], providers: re
 }
 
 // Dashboard provider checkboxes. `providers` is already in display order.
-export function preferencesHtml(providers: readonly ProviderIdentity[], enabled: readonly string[]): string {
+export function preferencesHtml(providers: readonly ProviderIdentity[], enabled: readonly string[], icons: Readonly<Record<string, string>> = {}): string {
   const choices = providers.map(({ id, displayName }) => {
     const name = escapeHtml(displayName);
-    return `<div class="choice" data-id="${escapeHtml(id)}"><label><input type="checkbox" ${enabled.includes(id) ? 'checked' : ''}> ${providerIcon(id)}${name}</label>`
+    return `<div class="choice" data-id="${escapeHtml(id)}"><label><input type="checkbox" ${enabled.includes(id) ? 'checked' : ''}> ${providerIcon(id, icons)}${name}</label>`
       + `<button type="button" data-move="-1" aria-label="Move ${name} up">↑</button><button type="button" data-move="1" aria-label="Move ${name} down">↓</button></div>`;
   }).join('');
   return `<div class="page-heading"><div><h1>AI Status</h1><p class="muted">Current provider reports and recent incident history.</p></div><button id="refresh" class="secondary">Refresh status</button></div>
@@ -72,6 +73,7 @@ export function preferencesHtml(providers: readonly ProviderIdentity[], enabled:
 }
 
 export interface PageOptions {
+  iconUris?: Readonly<Record<string, string>>;
   nonce: string;
   cspSource: string;
   styleUri: string;
@@ -82,7 +84,7 @@ export interface PageOptions {
 
 // Without `page`, renders static markup with no scripts or stylesheet (used by tests).
 export function detailsHtml(statuses: readonly ServiceStatus[], providers: readonly ProviderIdentity[], page?: PageOptions): string {
-  const rows = statusRowsHtml(statuses, providers);
+  const rows = statusRowsHtml(statuses, providers, page?.iconUris);
   const csp = `default-src 'none'; base-uri 'none'; form-action 'none'`
     + (page ? `; style-src ${page.cspSource}; img-src ${page.cspSource}; script-src 'nonce-${escapeHtml(page.nonce)}'` : '');
   const style = page ? `<link rel="stylesheet" href="${escapeHtml(page.styleUri)}">` : '';
@@ -95,5 +97,5 @@ export function detailsHtml(statuses: readonly ServiceStatus[], providers: reado
     <p class="muted">A colored day means an incident was reported, not that the service was down all day. Color shows the worst published impact; hover or focus a bar for details. Feeds may be incomplete. Faint bars have no usable history. This is not measured uptime; the latest day may be partial.</p>
     <div class="legend">${legend}</div></details></header>
     <main id="history">${rows || '<p>No providers enabled. Choose providers in AI Status settings.</p>'}</main>
-    <footer class="project-links" aria-label="Contribute to AI Status"><a href="https://github.com/xerioc2/ai-status-bar">GitHub</a><a href="https://github.com/xerioc2/ai-status-bar/issues/new">Bugs &amp; suggestions</a><a href="https://github.com/xerioc2/ai-status-bar/blob/main/CONTRIBUTING.md">Contribute a PR</a></footer>${scripts}</body></html>`;
+    <footer class="project-links" aria-label="Contribute to AI Status"><a href="${escapeHtml(projectUrls.repository)}">GitHub</a><a href="${escapeHtml(projectUrls.issues + "/new")}">Bugs &amp; suggestions</a><a href="${escapeHtml(projectUrls.contributing)}">Contribute a PR</a></footer>${scripts}</body></html>`;
 }
