@@ -9,7 +9,7 @@ suite('External webview stylesheet', () => {
   for (const dashboard of [false, true]) {
     test(`loads production CSS under the production CSP in ${dashboard ? 'dashboard' : 'sidebar'} mode`, async function () {
       this.timeout(15_000);
-      const extension = vscode.extensions.all.find(item => item.packageJSON.name === 'ai-status-bar')!;
+      const extension = vscode.extensions.all.find(item => item.packageJSON.name === 'ai-provider-status-monitor')!;
       const providers = providerDefinitions;
       const status: ServiceStatus = { providerId: providers[0].id, displayName: 'Example', level: 'Operational', checkedAt: '', incidents: [], affectedComponents: [],
         history: [{ date: '2026-09-29', level: 'Operational', incidents: [] }] };

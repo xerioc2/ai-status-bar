@@ -27,7 +27,7 @@ The count is affected providers, not incidents. Reported issues take precedence 
 
 Requires VS Code **1.138.0 or newer**. This project is preparing its first Marketplace release; no Marketplace listing is claimed yet.
 
-To install a packaged build, run **Extensions: Install from VSIX...** from the Command Palette and select `ai-status-bar-0.1.0.vsix`, or run `code --install-extension ai-status-bar-0.1.0.vsix`. To build that file from source, use `npm ci` then `npm run package`.
+To install a packaged build, run **Extensions: Install from VSIX...** from the Command Palette and select `ai-provider-status-monitor-0.1.0.vsix`, or run `code --install-extension ai-provider-status-monitor-0.1.0.vsix`. To build that file from source, use `npm ci` then `npm run package`.
 
 ## Run locally
 

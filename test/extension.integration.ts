@@ -4,7 +4,7 @@ import * as vscode from 'vscode';
 suite('Extension host', () => {
   test('activates, registers commands, and opens the collapsed Explorer view', async function () {
     this.timeout(20_000);
-    const extension = vscode.extensions.all.find(item => item.packageJSON.name === 'ai-status-bar');
+    const extension = vscode.extensions.all.find(item => item.packageJSON.name === 'ai-provider-status-monitor');
     assert.ok(extension, 'Development extension is installed');
     await extension.activate();
     assert.strictEqual(extension.isActive, true);
